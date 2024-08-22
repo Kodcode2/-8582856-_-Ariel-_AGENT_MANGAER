@@ -1,0 +1,6 @@
+@MossadAPI_HostAddress = http://localhost:5019
+
+GET {{MossadAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
