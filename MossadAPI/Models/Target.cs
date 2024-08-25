@@ -5,9 +5,10 @@ namespace MossadAPI.Models
 {
     public class Target
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Name { get; set; }
         public string Position {  get; set; }
+        public string ImageUrl { get; set; }
         public int? LocationId { get; set; }
         public TargetLocation? Location { get; set; }
         public TargetStatus Status { get; set; } = TargetStatus.Alive;

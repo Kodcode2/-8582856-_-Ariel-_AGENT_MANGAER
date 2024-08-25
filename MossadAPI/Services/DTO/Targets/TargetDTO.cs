@@ -1,8 +1,8 @@
-﻿namespace MossadAPI.Services.DTO
+﻿namespace MossadAPI.Services.DTO.Targets
 {
     public class TargetDTO
     {
-        public int Token {  get; set; }
+        public int Token { get; set; }
         public string Name { get; set; }
         public string Position { get; set; }
         public string PhotoUrl { get; set; }

@@ -15,11 +15,11 @@ namespace MossadAPI.Data
         {
         }
 
-        public DbSet<MossadAPI.Models.Agent> Agent { get; set; } = default!;
-        public DbSet<MossadAPI.Models.Target> Target { get; set; } = default!;
-        public DbSet<MossadAPI.Models.Mission> Mission { get; set; } = default!;
-        public DbSet<MossadAPI.Models.AgentLocation> AgentLocation { get; set; } = default!;
-        public DbSet<MossadAPI.Models.TargetLocation> TargetLocation { get; set; } = default!;
+        public DbSet<MossadAPI.Models.Agent> Agents { get; set; } = default!;
+        public DbSet<MossadAPI.Models.Target> Targets { get; set; } = default!;
+        public DbSet<MossadAPI.Models.Mission> Missions { get; set; } = default!;
+        public DbSet<MossadAPI.Models.AgentLocation> AgentLocations { get; set; } = default!;
+        public DbSet<MossadAPI.Models.TargetLocation> TargetLocations { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

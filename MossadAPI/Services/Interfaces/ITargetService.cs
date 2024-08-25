@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MossadAPI.Models;
-using MossadAPI.Services.DTO;
+using MossadAPI.Services.DTO.Targets;
 
 namespace MossadAPI.Services.Interfaces
 {
     public interface ITargetService
     {
-        Task<ActionResult<int>> PostTarget(TargetDTO targetDTO);
-        Task<ActionResult<List<Target>>> GetAllTargets();
+        Task<int?> PostTarget(TargetDTO targetDTO);
+        Task<List<Target>> GetAllTargets();
+        Task SetFirstLocation(int targetId, TargetLocationDTO locationDTO);
+        Task MoveTarget(int targetId, TargetMovementDTO movementDTO);
     }
 }
