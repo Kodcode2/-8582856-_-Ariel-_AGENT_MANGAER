@@ -41,7 +41,7 @@ namespace MossadAPI.Controllers
         {
             try
             {
-                List<Mission> missions = await _missionService.GetAllMissions();
+                List<Mission> missions = await _missionService.GetMissions();
                 return Ok("Great");
             }
             catch (Exception ex)

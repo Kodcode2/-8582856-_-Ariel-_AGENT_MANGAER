@@ -42,7 +42,7 @@ namespace MossadAPI.Services.Implementation
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Mission>> GetAllMissions()
+        public async Task<List<Mission>> GetMissions()
         {
             List<Mission> missions = _context.Missions.ToList();
             if (missions == null)
