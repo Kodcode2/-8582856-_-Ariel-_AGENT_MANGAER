@@ -44,11 +44,17 @@ namespace MossadAPI.Services.Implementation
 
         public async Task<List<Mission>> GetMissions()
         {
-            List<Mission> missions = _context.Missions.ToList();
+            List<Mission> missions = _context.Missions
+                .Include(m => m.Target)
+                .Include(m => m.Agent)
+                .Where(m => m.Status == MissionStatus.OnOffer)
+                .ToList();
             if (missions == null)
             {
                 throw new ArgumentNullException(nameof(missions));
             }
+            missions = await IsRelevant(missions);
+            missions = await IsNew(missions);
             return missions;
         }
 
@@ -122,6 +128,46 @@ namespace MossadAPI.Services.Implementation
                 isInDistance = true;
             }
             return isInDistance;
+        }
+
+        public async Task<List<Mission>> IsRelevant(List<Mission> missions)
+        {
+            foreach (Mission mission in missions)
+            {
+                if (!IsInDistance(mission.Target, mission.Agent))
+                {
+                    missions.Remove(mission);
+                }
+            }
+            await _context.SaveChangesAsync();
+            return missions;
+        }
+
+        public async Task<List<Mission>> IsNew(List<Mission> missions)
+        {
+            List<Target> targets = _context.Targets
+                .Where(t => t.Status == TargetStatus.Alive)
+                .ToList();
+            List<Agent> agents = _context.Agents
+                .Where(t => t.Status == AgentStatus.InActive)
+                .Include(t => t.Location)
+                .Include(t => t.Status)
+                .Include(t => t.Missions)
+                .ToList();
+            foreach (Target target in targets)
+            {
+                foreach (Agent agent in agents)
+                {
+                    if (IsInDistance(target, agent))
+                    {
+                        Mission mission = await CreateMission(agent, target);
+                        missions .Add(mission);
+                    }
+                }
+            }
+            await _context.SaveChangesAsync();
+            return missions;
+
         }
     }
 }

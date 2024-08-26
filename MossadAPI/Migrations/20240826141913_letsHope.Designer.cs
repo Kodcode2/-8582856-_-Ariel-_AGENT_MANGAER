@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MossadAPI.Data;
 
@@ -11,9 +12,11 @@ using MossadAPI.Data;
 namespace MossadAPI.Migrations
 {
     [DbContext(typeof(MossadAPIContext))]
-    partial class MossadAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20240826141913_letsHope")]
+    partial class letsHope
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
