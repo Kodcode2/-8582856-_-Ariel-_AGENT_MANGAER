@@ -2,19 +2,25 @@
 using MossadAPI.Models;
 using MossadAPI.Services.DTO.Agents;
 using MossadAPI.Services.Interfaces;
+using MossadAPI.Services.Implementation;
 using MossadAPI.Data;
 using MossadAPI.Services.Utilities;
 using MossadAPI.Services.DTO.Targets;
+using MossadAPI.Enums;
 
 namespace MossadAPI.Services.Implementation
 {
     public class AgentService : IAgentService
     {
         private readonly MossadAPIContext _context;
-        public AgentService(MossadAPIContext context)
+        private readonly MissionService _missionService;
+        
+        public AgentService(MossadAPIContext context, MissionService missionService)
         {
             _context = context;
+            _missionService = missionService;
         }
+        
         public async Task<List<Agent>> GetAllAgents()
         {
             List<Agent> agents;
@@ -29,10 +35,22 @@ namespace MossadAPI.Services.Implementation
             {
                 throw new ArgumentNullException(nameof(agent));
             }
+            else if (agent.Status == AgentStatus.Active)
+            {
+                throw new InvalidOperationException(nameof(agent));
+            }
             Dictionary<string, int> movement = AgentUtilities.CalculateMovement(movementDTO.Direction, agent.Location.X, agent.Location.Y);
-            agent.Location.X = movement["x"];
-            agent.Location.Y = movement["y"];
-            await _context.SaveChangesAsync();
+            agent.Location.X += movement["x"];
+            agent.Location.Y += movement["y"];
+            if (agent.Location.X < 1000 && agent.Location.Y < 1000)
+            {
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("OutOfRange");
+            }
+            
         }
 
         public async Task<int> PostAgent(AgentDTO agentDTO)
@@ -59,6 +77,32 @@ namespace MossadAPI.Services.Implementation
             agent.Location.X = locationDTO.X;
             agent.Location.Y = locationDTO.Y;
             await _context.SaveChangesAsync();
+            await ModifyOffers(agent);
         }
+
+        public async Task ModifyOffers(Agent agent)
+        {
+            List<Target> targets = _context.Targets
+                .Where(t => t.Status == TargetStatus.Alive && t.Mission == null)
+                .Include(t => t.Location)
+                .Include(t => t.Status)
+                .Include(t => t.Mission)
+                .ToList();
+            
+            foreach (Target target in targets)
+            {
+                if (_missionService.IsInDistance(target, agent))
+                {
+                    await _missionService.CreateMission(agent, target);
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        
+
+        
+
+        
     }
 }

@@ -6,6 +6,7 @@ using MossadAPI.Data;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using MossadAPI.Services.Utilities;
+using MossadAPI.Enums;
 
 
 namespace MossadAPI.Services.Implementation
@@ -13,9 +14,11 @@ namespace MossadAPI.Services.Implementation
     public class TargetService : ITargetService
     {
         private readonly MossadAPIContext _context;
-        public TargetService(MossadAPIContext context)
+        private readonly MissionService _missionService;
+        public TargetService(MossadAPIContext context, MissionService missionService)
         {
             _context = context;
+            _missionService = missionService;
         }
         public async Task<List<Target>> GetAllTargets()
         {
@@ -34,7 +37,14 @@ namespace MossadAPI.Services.Implementation
             Dictionary<string, int> movement = TargetUtilities.CalculateMovement(movementDTO.Direction, target.Location.X, target.Location.Y);
             target.Location.X = movement["x"];
             target.Location.Y = movement["y"];
-            await _context.SaveChangesAsync();
+            if (target.Location.X < 1000 && target.Location.Y < 1000)
+            {
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("OutOfRange");
+            }
         }
 
         public async Task<int?> PostTarget(TargetDTO targetDTO)
@@ -61,6 +71,26 @@ namespace MossadAPI.Services.Implementation
             }
             target.Location.X = locationDTO.X;
             target.Location.Y = locationDTO.Y;
+            await _context.SaveChangesAsync();
+            await ModifyOffers(target);
+        }
+
+        public async Task ModifyOffers(Target target)
+        {
+            List<Agent> agents = _context.Agents
+                .Where(t => t.Status == AgentStatus.InActive)
+                .Include(t => t.Location)
+                .Include(t => t.Status)
+                .Include(t => t.Missions)
+                .ToList();
+
+            foreach (Agent agent in agents)
+            {
+                if (_missionService.IsInDistance(target, agent))
+                {
+                    await _missionService.CreateMission(agent, target);
+                }
+            }
             await _context.SaveChangesAsync();
         }
     }

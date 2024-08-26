@@ -27,15 +27,17 @@ namespace MossadAPI.Services.Implementation
                 .ToList();
             foreach (var mission in missions)
             {
+                if (MissionUtilities.CalculateDistance(mission.Target.Location, mission.Agent.Location) < 1)
+                {
+                    UpdateStatus(mission);
+                }
+                else
+                {
+                    UpdateMovement(mission);
+                }
                 int timeRemaining = MissionUtilities.CalculateTime(mission.Target.Location, mission.Agent.Location);
                 mission.TimeLeft = timeRemaining;
                 _context.Missions.Update(mission);
-                if (MissionUtilities.CalculateDistance(mission.Target.Location, mission.Agent.Location) <= 1)
-                {
-                    UpdateStatus(mission);
-                    UpdateMovement(mission);
-                    _context.Missions.Update(mission);
-                }
             }
             await _context.SaveChangesAsync();
         }
@@ -52,16 +54,28 @@ namespace MossadAPI.Services.Implementation
 
         public async Task UpdateMissionStatus(int id, UpdateStatusDTO missionDTO)
         {
-            Mission mission = _context.Missions.Find(id);
+            Mission? mission = await _context.Missions
+                .Include(m  => m.Target)
+                .Include(m => m.Agent)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (mission == null)
             {
                 throw new ArgumentNullException(nameof(mission));
             }
-            if (missionDTO.Status == "assigned")
+            else if (missionDTO.Status != "assigned")
             {
-                mission.Status = MissionStatus.InMission;
-                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Status Invalid");
             }
+            else if (!IsInDistance(mission.Target, mission.Agent))
+            {
+                _context.Missions.Remove(mission);
+                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Target Too Far");
+            }
+            mission.Status = MissionStatus.InMission;
+            await DeleteAllMissions(mission.Target.Id, mission.Agent.Id);
+            await _context.SaveChangesAsync();
         }
 
         public void UpdateStatus(Mission mission)
@@ -74,8 +88,40 @@ namespace MossadAPI.Services.Implementation
         public void UpdateMovement(Mission mission)
         {
             Dictionary<string, int> movements = MissionUtilities.CalculateMovement(mission.Target.Location, mission.Agent.Location);
-            mission.Agent.Location.X = movements["x"];
-            mission.Agent.Location.Y = movements["y"];
+            mission.Agent.Location.X += movements["x"];
+            mission.Agent.Location.Y += movements["y"];
+        }
+
+        public async Task<Mission> CreateMission(Agent agent, Target target)
+        {
+            Mission mission = new Mission();
+            mission.Agent = agent;
+            mission.Target = target;
+            mission.TimeLeft = MissionUtilities.CalculateTime(target.Location, agent.Location);
+            _context.Missions.Add(mission);
+            await _context.SaveChangesAsync();
+            return mission;
+            
+        }
+
+        public async Task DeleteAllMissions(int? targetId, int agentId)
+        {
+            List<Mission> missions = _context.Missions
+                .Where(m => m.TargetId == targetId || m.AgentId == agentId)
+                .ToList();
+            _context.RemoveRange(missions);
+            await _context.SaveChangesAsync();
+        }
+
+        public bool IsInDistance(Target target, Agent agent)
+        {
+            bool isInDistance = false;
+            int distance = MissionUtilities.CalculateDistance(target.Location, agent.Location);
+            if (distance < 200)
+            {
+                isInDistance = true;
+            }
+            return isInDistance;
         }
     }
 }
