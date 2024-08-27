@@ -6,6 +6,7 @@ using MossadAPI.Data;
 using MossadAPI.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MossadAPI.Services.Implementation
 {
@@ -69,7 +70,7 @@ namespace MossadAPI.Services.Implementation
             {
                 throw new ArgumentNullException(nameof(mission));
             }
-            else if (missionDTO.Status != "assigned")
+            else if (missionDTO.status != "assigned")
             {
                 throw new InvalidOperationException("Status Invalid");
             }

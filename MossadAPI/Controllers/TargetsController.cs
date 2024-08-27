@@ -25,7 +25,7 @@ namespace MossadAPI.Controllers
 
         [HttpPost]
         [Route("/targets")]
-        public async Task<ActionResult> CreateTarget(TargetDTO targetDTO)
+        public async Task<ActionResult> CreateTarget([FromBody] TargetDTO targetDTO)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace MossadAPI.Controllers
 
         [HttpPut]
         [Route("/targets/{id}/pin")]
-        public async Task<ActionResult> SetLocation(TargetLocationDTO targetDTO, int id)
+        public async Task<ActionResult> SetLocation([FromBody] TargetLocationDTO targetDTO, int id)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace MossadAPI.Controllers
 
         [HttpPut]
         [Route("/targets/{id}/move")]
-        public async Task<ActionResult> UpdateLocation(int id, TargetMovementDTO targetMovementDTO)
+        public async Task<ActionResult> UpdateLocation(int id, [FromBody] TargetMovementDTO targetMovementDTO)
         {
             try
             {

@@ -2,7 +2,7 @@
 {
     public class TargetMovementDTO
     {
-        public string Token { get; set; }
-        public string Direction { get; set; }
+        public string token { get; set; }
+        public string direction { get; set; }
     }
 }

@@ -52,7 +52,7 @@ namespace MossadAPI.Controllers
 
         [HttpPut]
         [Route("/missions/{id}")]
-        public async Task<ActionResult> UpdateStatus(int id, UpdateStatusDTO status)
+        public async Task<ActionResult> UpdateStatus(int id, [FromBody] UpdateStatusDTO status)
         {
             try
             {

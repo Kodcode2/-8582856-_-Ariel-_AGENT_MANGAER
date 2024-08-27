@@ -2,8 +2,8 @@
 {
     public class TargetLocationDTO
     {
-        public string Token { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
+        public string token { get; set; }
+        public int x { get; set; }
+        public int y { get; set; }
     }
 }

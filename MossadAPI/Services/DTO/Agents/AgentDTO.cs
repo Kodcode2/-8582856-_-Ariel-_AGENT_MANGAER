@@ -2,8 +2,8 @@
 {
     public class AgentDTO
     {
-        public string Token { get; set; }
-        public string NickName { get; set; }
-        public string PhotoUrl { get; set; }
+        public string token { get; set; }
+        public string nickName { get; set; }
+        public string photo_url { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using MossadAPI.Data;
 using MossadAPI.Services.Utilities;
 using MossadAPI.Services.DTO.Targets;
 using MossadAPI.Enums;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MossadAPI.Services.Implementation
 {
@@ -39,7 +40,7 @@ namespace MossadAPI.Services.Implementation
             {
                 throw new InvalidOperationException(nameof(agent));
             }
-            Dictionary<string, int> movement = AgentUtilities.CalculateMovement(movementDTO.Direction, agent.Location.X, agent.Location.Y);
+            Dictionary<string, int> movement = AgentUtilities.CalculateMovement(movementDTO.direction, agent.Location.X, agent.Location.Y);
             agent.Location.X += movement["x"];
             agent.Location.Y += movement["y"];
             if (agent.Location.X < 1000 && agent.Location.Y < 1000)
@@ -60,8 +61,8 @@ namespace MossadAPI.Services.Implementation
                 throw new ArgumentNullException(nameof(agentDTO));
             }
             Agent agent = new Agent();
-            agent.NickName = agentDTO.NickName;
-            agent.ImageUrl = agentDTO.PhotoUrl;
+            agent.NickName = agentDTO.nickName;
+            agent.ImageUrl = agentDTO.photo_url;
             _context.Agents.Add(agent);
             await _context.SaveChangesAsync();
             return agent.Id;
@@ -74,8 +75,8 @@ namespace MossadAPI.Services.Implementation
             {
                 throw new ArgumentNullException(nameof(agent));
             }
-            agent.Location.X = locationDTO.X;
-            agent.Location.Y = locationDTO.Y;
+            agent.Location.X = locationDTO.x;
+            agent.Location.Y = locationDTO.y;
             await _context.SaveChangesAsync();
             await ModifyOffers(agent);
         }

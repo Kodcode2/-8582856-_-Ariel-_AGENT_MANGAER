@@ -2,9 +2,9 @@
 {
     public class TargetDTO
     {
-        public int Token { get; set; }
-        public string Name { get; set; }
-        public string Position { get; set; }
-        public string PhotoUrl { get; set; }
+        public int token { get; set; }
+        public string name { get; set; }
+        public string position { get; set; }
+        public string photo_url { get; set; }
     }
 }

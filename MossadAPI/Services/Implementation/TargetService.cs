@@ -34,7 +34,7 @@ namespace MossadAPI.Services.Implementation
             {
                 throw new ArgumentNullException(nameof(target));
             }
-            Dictionary<string, int> movement = TargetUtilities.CalculateMovement(movementDTO.Direction, target.Location.X, target.Location.Y);
+            Dictionary<string, int> movement = TargetUtilities.CalculateMovement(movementDTO.direction, target.Location.X, target.Location.Y);
             target.Location.X = movement["x"];
             target.Location.Y = movement["y"];
             if (target.Location.X < 1000 && target.Location.Y < 1000)
@@ -54,9 +54,9 @@ namespace MossadAPI.Services.Implementation
                 throw new ArgumentNullException(nameof(targetDTO));
             }
            Target target = new Target();
-            target.Name = targetDTO.Name;
-            target.Position = targetDTO.Position;
-            target.ImageUrl = targetDTO.PhotoUrl;
+            target.Name = targetDTO.name;
+            target.Position = targetDTO.position;
+            target.ImageUrl = targetDTO.photo_url;
            _context.Targets.Add(target);
            await _context.SaveChangesAsync();
            return target.Id;
@@ -69,8 +69,8 @@ namespace MossadAPI.Services.Implementation
             {
                 throw new ArgumentNullException(nameof(target));
             }
-            target.Location.X = locationDTO.X;
-            target.Location.Y = locationDTO.Y;
+            target.Location.X = locationDTO.x;
+            target.Location.Y = locationDTO.y;
             await _context.SaveChangesAsync();
             await ModifyOffers(target);
         }

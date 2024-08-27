@@ -39,7 +39,7 @@ namespace MossadAPI.Controllers
 
         [HttpPost]
         [Route("/agents")]
-        public async Task<ActionResult> CreateAgent(AgentDTO agentDTO)
+        public async Task<ActionResult> CreateAgent([FromBody] AgentDTO agentDTO)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace MossadAPI.Controllers
 
         [HttpPut]
         [Route("/agents/{id}/pin")]
-        public async Task<ActionResult> SetLocation(AgentLocationDTO agentDTO, int id)
+        public async Task<ActionResult> SetLocation([FromBody] AgentLocationDTO agentDTO, int id)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace MossadAPI.Controllers
 
         [HttpPut]
         [Route("/agents/{id}/move")]
-        public async Task<ActionResult> UpdateLocation(int id, AgentMovementDTO agentMovementDTO)
+        public async Task<ActionResult> UpdateLocation(int id, [FromBody] AgentMovementDTO agentMovementDTO)
         {
             try
             {

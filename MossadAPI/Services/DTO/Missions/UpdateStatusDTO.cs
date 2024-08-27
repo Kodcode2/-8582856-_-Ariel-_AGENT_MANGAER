@@ -2,7 +2,7 @@
 {
     public class UpdateStatusDTO
     {
-        public string Token { get; set; }
-        public string Status { get; set; }
+        public string token { get; set; }
+        public string status { get; set; }
     }
 }
