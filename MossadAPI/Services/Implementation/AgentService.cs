@@ -25,13 +25,18 @@ namespace MossadAPI.Services.Implementation
         public async Task<List<Agent>> GetAllAgents()
         {
             List<Agent> agents;
-            agents = await _context.Agents.ToListAsync();
+            agents = await _context.Agents
+                .Include(a => a.Location)
+                .Include(a => a.Missions)
+                .ToListAsync();
             return agents;
         }
 
         public async Task MoveAgent(int agentId, AgentMovementDTO movementDTO)
         {
-            Agent agent = await _context.Agents.FindAsync(agentId);
+            Agent agent = await _context.Agents
+                .Include (a => a.Location)
+                .FirstOrDefaultAsync(a => a.Id == agentId);
             if (agent == null)
             {
                 throw new ArgumentNullException(nameof(agent));
@@ -41,8 +46,8 @@ namespace MossadAPI.Services.Implementation
                 throw new InvalidOperationException(nameof(agent));
             }
             Dictionary<string, int> movement = AgentUtilities.CalculateMovement(movementDTO.direction, agent.Location.X, agent.Location.Y);
-            agent.Location.X += movement["x"];
-            agent.Location.Y += movement["y"];
+            agent.Location.X = movement["x"];
+            agent.Location.Y = movement["y"];
             if (agent.Location.X < 1000 && agent.Location.Y < 1000)
             {
                 await _context.SaveChangesAsync();
@@ -70,11 +75,14 @@ namespace MossadAPI.Services.Implementation
 
         public async Task SetFirstLocation(int agentId, AgentLocationDTO locationDTO)
         {
-            Agent agent = await _context.Agents.FindAsync(agentId);
+            Agent agent = await _context.Agents
+                .Include(a => a.Location)
+                .FirstOrDefaultAsync(a => a.Id == agentId);
             if (agent == null)
             {
                 throw new ArgumentNullException(nameof(agent));
             }
+            agent.Location = new AgentLocation();
             agent.Location.X = locationDTO.x;
             agent.Location.Y = locationDTO.y;
             await _context.SaveChangesAsync();
@@ -86,13 +94,16 @@ namespace MossadAPI.Services.Implementation
             List<Target> targets = _context.Targets
                 .Where(t => t.Status == TargetStatus.Alive && t.Mission == null)
                 .Include(t => t.Location)
-                .Include(t => t.Status)
                 .Include(t => t.Mission)
                 .ToList();
             
             foreach (Target target in targets)
             {
-                if (_missionService.IsInDistance(target, agent))
+                if (target.Location == null)
+                {
+                    continue;
+                }
+                else if (_missionService.IsInDistance(target, agent))
                 {
                     await _missionService.CreateMission(agent, target);
                 }

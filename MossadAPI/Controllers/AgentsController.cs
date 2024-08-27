@@ -58,7 +58,7 @@ namespace MossadAPI.Controllers
         {
             try
             {
-                _agentService.SetFirstLocation(id, agentDTO);
+                await _agentService.SetFirstLocation(id, agentDTO);
                 return Ok("Good");
             }
             catch (Exception ex)
@@ -73,7 +73,7 @@ namespace MossadAPI.Controllers
         {
             try
             {
-                _agentService.MoveAgent(id, agentMovementDTO);
+                await _agentService.MoveAgent(id, agentMovementDTO);
                 return Ok("Good");
             }
             catch (Exception ex)

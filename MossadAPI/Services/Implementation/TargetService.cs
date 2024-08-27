@@ -25,6 +25,7 @@ namespace MossadAPI.Services.Implementation
             List<Target> targets;
             targets = await _context.Targets
                 .Include(t => t.Location)
+                .Include(t => t.Mission)
                 .ToListAsync();
             return targets;
         }
@@ -94,7 +95,7 @@ namespace MossadAPI.Services.Implementation
             {
                 if (agent.Location == null)
                 {
-                    return;
+                    continue;
                 }
                 else if (_missionService.IsInDistance(target, agent))
                 {
