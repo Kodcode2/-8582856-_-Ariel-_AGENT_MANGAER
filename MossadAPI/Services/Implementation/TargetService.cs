@@ -23,13 +23,17 @@ namespace MossadAPI.Services.Implementation
         public async Task<List<Target>> GetAllTargets()
         {
             List<Target> targets;
-            targets = await _context.Targets.ToListAsync();
+            targets = await _context.Targets
+                .Include(t => t.Location)
+                .ToListAsync();
             return targets;
         }
 
         public async Task MoveTarget(int targetId, TargetMovementDTO movementDTO)
         {
-            Target target = await _context.Targets.FindAsync(targetId);
+            Target target = await _context.Targets
+                .Include(t => t.Location)
+                .FirstOrDefaultAsync(t => t.Id == targetId);
             if (target == null)
             {
                 throw new ArgumentNullException(nameof(target));
@@ -64,11 +68,14 @@ namespace MossadAPI.Services.Implementation
 
         public async Task SetFirstLocation(int targetId, TargetLocationDTO locationDTO)
         {
-            Target target = await _context.Targets.FindAsync(targetId);
+            Target target = await _context.Targets
+                .Include(x => x.Location)
+                .FirstOrDefaultAsync(t => t.Id == targetId);
             if (target == null)
             {
                 throw new ArgumentNullException(nameof(target));
             }
+            target.Location = new TargetLocation();
             target.Location.X = locationDTO.x;
             target.Location.Y = locationDTO.y;
             await _context.SaveChangesAsync();
@@ -80,13 +87,16 @@ namespace MossadAPI.Services.Implementation
             List<Agent> agents = _context.Agents
                 .Where(t => t.Status == AgentStatus.InActive)
                 .Include(t => t.Location)
-                .Include(t => t.Status)
                 .Include(t => t.Missions)
                 .ToList();
 
             foreach (Agent agent in agents)
             {
-                if (_missionService.IsInDistance(target, agent))
+                if (agent.Location == null)
+                {
+                    return;
+                }
+                else if (_missionService.IsInDistance(target, agent))
                 {
                     await _missionService.CreateMission(agent, target);
                 }
